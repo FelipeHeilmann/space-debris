@@ -27,7 +27,7 @@ jobs:
           python -c "from app import app; print('App OK')"
 
       - name: Login no Azure
-        uses: azure/login@v2
+        uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -36,6 +36,13 @@ jobs:
         with:
           app-name: ${{ secrets.AZURE_APP_NAME }}
           package: sdtcc/app
+
+      - name: Configurar startup command
+        run: |
+          az webapp config set \
+            --name ${{ secrets.AZURE_APP_NAME }} \
+            --resource-group rg-spacedebris-tracker \
+            --startup-file "gunicorn --bind=0.0.0.0:8000 --timeout 600 app:app"
 
       - name: Verificar aplicacao no ar
         run: |
