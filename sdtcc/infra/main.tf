@@ -97,12 +97,10 @@ resource "azurerm_key_vault_secret" "n2yo_key" {
   key_vault_id = azurerm_key_vault.kv.id
 }
 
-# ─── IAM: Role Assignment (Contributor no Resource Group) ─────────────────────
-resource "azurerm_role_assignment" "github_sp_contributor" {
-  scope                = azurerm_resource_group.rg.id
-  role_definition_name = "Contributor"
-  principal_id         = data.azurerm_client_config.current.object_id
-}
+# IAM: Role Assignment documentado
+# O Service Principal sp-spacedebris-githubactions possui role Contributor
+# na subscription, criado via: az ad sp create-for-rbac --role Contributor
+# appId: b43524f4-1334-4639-9738-c52a33706e6f
 
 # ─── Monitor: Action Group (e-mail) ───────────────────────────────────────────
 resource "azurerm_monitor_action_group" "email_ag" {

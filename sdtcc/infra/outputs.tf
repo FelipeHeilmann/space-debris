@@ -21,7 +21,7 @@ output "resource_group_name" {
   value = azurerm_resource_group.rg.name
 }
 
-output "role_assignment_id" {
-  value       = azurerm_role_assignment.github_sp_contributor.id
-  description = "ID do role assignment Contributor documentado"
+output "role_assignment_info" {
+  value       = "SP sp-spacedebris-githubactions (appId: b43524f4-1334-4639-9738-c52a33706e6f) com role Contributor na subscription"
+  description = "Role assignment documentado - criado via az ad sp create-for-rbac"
 }
