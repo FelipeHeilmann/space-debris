@@ -1,6 +1,6 @@
 variable "location" {
   description = "Região Azure"
-  default     = "eastus"
+  default     = "eastus2"
 }
 
 variable "resource_group_name" {
