@@ -57,6 +57,16 @@
     .risco-baixo  { color: #2ecc71; font-weight: bold; }
 
     footer { text-align: center; padding: 24px; color: #4a6080; font-size: 0.8rem; border-top: 1px solid #1e3560; }
+
+    .about { background: linear-gradient(135deg, #0d1b3e, #0f1c35); border: 1px solid #f0c04040; border-radius: 10px; padding: 32px; margin-bottom: 28px; }
+    .about h2 { color: #f0c040; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 18px; }
+    .about p { color: #b0c4de; font-size: 0.93rem; line-height: 1.75; margin-bottom: 14px; }
+    .about p:last-child { margin-bottom: 0; }
+    .about strong { color: #e0eaf8; }
+    .pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-top: 22px; }
+    .pillar { background: #0a1428; border-radius: 8px; padding: 16px; border-left: 3px solid #f0c040; }
+    .pillar h3 { color: #f0c040; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .pillar p { color: #7a90b0; font-size: 0.82rem; line-height: 1.5; margin: 0; }
   </style>
 </head>
 <body>
@@ -67,6 +77,57 @@
 </header>
 
 <div class="container">
+
+  <!-- Sobre o Projeto -->
+  <div class="about">
+    <h2>Sobre o SpaceDebris Tracker</h2>
+    <p>
+      O <strong>SpaceDebris Tracker</strong> é uma plataforma integrada de monitoramento, análise e predição
+      de risco causado por detritos espaciais em órbita terrestre. A solução foi desenvolvida como parte da
+      <strong>Global Solution 2026</strong> da FIAP, no desafio temático <em>Indústria Espacial: O Código que Move o Universo</em>.
+    </p>
+    <p>
+      Existem hoje mais de <strong>27.000 detritos orbitais rastreados</strong> e estima-se mais de 1 milhão de
+      fragmentos menores que 10 cm em órbita. A colisão com detritos representa uma ameaça direta a satélites
+      operacionais, à Estação Espacial Internacional (ISS) e às futuras missões espaciais. O custo médio de um
+      satélite perdido supera <strong>US$ 300 milhões</strong> — e sistemas de monitoramento acessíveis e preditivos
+      ainda são escassos para pequenas empresas e pesquisadores independentes.
+    </p>
+    <p>
+      Nossa solução combina <strong>dados orbitais de APIs públicas</strong> (NASA, CelesTrak, N2YO),
+      <strong>machine learning para predição de colisões</strong>, <strong>visão computacional</strong> para
+      classificação de cobertura de solo por satélite, um <strong>pipeline de dados automatizado</strong> com
+      Apache Airflow e uma <strong>infraestrutura cloud segura</strong> no Microsoft Azure — tudo integrado em
+      um painel público de monitoramento em tempo real.
+    </p>
+    <p>
+      A plataforma é construída seguindo práticas de <strong>DevSecOps</strong>: infraestrutura como código com
+      Terraform, pipeline CI/CD automatizado via GitHub Actions, credenciais protegidas no Azure Key Vault,
+      HTTPS ativo e monitoramento contínuo com Application Insights.
+    </p>
+    <div class="pillars">
+      <div class="pillar">
+        <h3>Machine Learning</h3>
+        <p>Predição de nível de risco de colisão usando Random Forest e XGBoost com interpretabilidade SHAP.</p>
+      </div>
+      <div class="pillar">
+        <h3>Visão Computacional</h3>
+        <p>CNNs treinadas do zero para classificar cobertura de solo em imagens satelitais com Gradio.</p>
+      </div>
+      <div class="pillar">
+        <h3>Pipeline de Dados</h3>
+        <p>DAGs no Apache Airflow ingerindo dados orbitais reais e armazenando no Oracle DB da FIAP.</p>
+      </div>
+      <div class="pillar">
+        <h3>Cloud & DevSecOps</h3>
+        <p>Azure App Service, Key Vault, Application Insights e CI/CD automatizado via GitHub Actions.</p>
+      </div>
+      <div class="pillar">
+        <h3>Automação RPA</h3>
+        <p>Bot UiPath monitorando dados espaciais, aplicando regras de negócio e enviando alertas.</p>
+      </div>
+    </div>
+  </div>
 
   <!-- Problema + ODS -->
   <div class="grid">
