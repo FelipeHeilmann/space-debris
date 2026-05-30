@@ -20,29 +20,42 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Instalar dependencias e validar app
+      - name: Instalar dependencias localmente (pre-built)
+        run: |
+          pip install -r app/requirements.txt \
+            --target app/.python_packages/lib/site-packages
+
+      - name: Validar aplicacao
         working-directory: app
         run: |
-          pip install -r requirements.txt
-          python -c "from app import app; print('App OK')"
+          PYTHONPATH=.python_packages/lib/site-packages python -c "from app import app; print('App OK')"
 
       - name: Login no Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Configurar startup command
+      - name: Configurar startup e desabilitar build no servidor
         run: |
+          az webapp config appsettings set \
+            --name ${{ secrets.AZURE_APP_NAME }} \
+            --resource-group rg-spacedebris-tracker \
+            --settings SCM_DO_BUILD_DURING_DEPLOYMENT=false
           az webapp config set \
             --name ${{ secrets.AZURE_APP_NAME }} \
             --resource-group rg-spacedebris-tracker \
-            --startup-file "gunicorn --bind=0.0.0.0:8000 --timeout 600 app:app"
+            --startup-file "python -m gunicorn --bind=0.0.0.0:8000 --timeout 600 app:app"
 
-      - name: Zipar e fazer deploy via az cli
+      - name: Zipar aplicacao com dependencias
         run: |
           cd app
-          zip -r ../app.zip . -x "*.pyc" -x "__pycache__/*" -x ".git/*"
-          cd ..
+          zip -r ../app.zip . \
+            -x "*.pyc" \
+            -x "*/__pycache__/*" \
+            -x "__pycache__/*"
+
+      - name: Deploy para Azure App Service
+        run: |
           az webapp deploy \
             --resource-group rg-spacedebris-tracker \
             --name ${{ secrets.AZURE_APP_NAME }} \
@@ -50,13 +63,16 @@ jobs:
             --type zip \
             --async true
 
-      - name: Aguardar inicializacao e verificar status
+      - name: Aguardar inicializacao (sem build no servidor e rapido)
+        run: sleep 30
+
+      - name: Verificar status do App Service
         run: |
-          sleep 30
           az webapp show \
             --name ${{ secrets.AZURE_APP_NAME }} \
             --resource-group rg-spacedebris-tracker \
-            --query "state" -o tsv
+            --query "{estado:state,url:defaultHostName}" \
+            --output table
 
       - name: Logout Azure
         run: az logout
