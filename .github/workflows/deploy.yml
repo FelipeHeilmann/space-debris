@@ -31,6 +31,13 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: Configurar startup command
+        run: |
+          az webapp config set \
+            --name ${{ secrets.AZURE_APP_NAME }} \
+            --resource-group rg-spacedebris-tracker \
+            --startup-file "gunicorn --bind=0.0.0.0:8000 --timeout 600 app:app"
+
       - name: Zipar e fazer deploy via az cli
         run: |
           cd app
@@ -40,20 +47,16 @@ jobs:
             --resource-group rg-spacedebris-tracker \
             --name ${{ secrets.AZURE_APP_NAME }} \
             --src-path app.zip \
-            --type zip
+            --type zip \
+            --async true
 
-      - name: Configurar startup command
+      - name: Aguardar inicializacao e verificar status
         run: |
-          az webapp config set \
+          sleep 30
+          az webapp show \
             --name ${{ secrets.AZURE_APP_NAME }} \
             --resource-group rg-spacedebris-tracker \
-            --startup-file "gunicorn --bind=0.0.0.0:8000 --timeout 600 app:app"
-
-      - name: Reiniciar App Service
-        run: |
-          az webapp restart \
-            --name ${{ secrets.AZURE_APP_NAME }} \
-            --resource-group rg-spacedebris-tracker
+            --query "state" -o tsv
 
       - name: Logout Azure
         run: az logout
