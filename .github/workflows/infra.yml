@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'sdtcc/infra/**'
+      - 'infra/**'
 
 jobs:
   terraform:
@@ -49,19 +49,19 @@ jobs:
             --output none
 
       - name: Terraform Init
-        working-directory: sdtcc/infra
+        working-directory: infra
         run: terraform init
 
       - name: Terraform Plan
-        working-directory: sdtcc/infra
+        working-directory: infra
         run: terraform plan -var="n2yo_api_key=${{ secrets.N2YO_API_KEY }}"
 
       - name: Terraform Apply
-        working-directory: sdtcc/infra
+        working-directory: infra
         run: terraform apply -auto-approve -var="n2yo_api_key=${{ secrets.N2YO_API_KEY }}"
 
       - name: Exibir outputs
-        working-directory: sdtcc/infra
+        working-directory: infra
         run: terraform output
 
       - name: Logout Azure

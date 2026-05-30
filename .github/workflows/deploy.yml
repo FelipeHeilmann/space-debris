@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'sdtcc/app/**'
+      - 'app/**'
       - '.github/workflows/deploy.yml'
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
           python-version: '3.11'
 
       - name: Instalar dependencias e validar app
-        working-directory: sdtcc/app
+        working-directory: app
         run: |
           pip install -r requirements.txt
           python -c "from app import app; print('App OK')"
@@ -33,9 +33,9 @@ jobs:
 
       - name: Zipar e fazer deploy via az cli
         run: |
-          cd sdtcc/app
-          zip -r ../../app.zip .
-          cd ../..
+          cd app
+          zip -r ../app.zip .
+          cd ..
           az webapp deploy \
             --resource-group rg-spacedebris-tracker \
             --name ${{ secrets.AZURE_APP_NAME }} \

@@ -3,6 +3,8 @@ import random
 from flask import Flask, render_template, jsonify
 
 app = Flask(__name__)
+# Application Insights e monitoramento via APPLICATIONINSIGHTS_CONNECTION_STRING
+# configurado nas app settings do Azure — sem necessidade do SDK opencensus
 
 
 def gerar_detritos_simulados(n=60):
