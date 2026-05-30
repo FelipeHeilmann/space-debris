@@ -1,8 +1,11 @@
 import os
 import random
 from flask import Flask, render_template, jsonify
+from keyvault import get_n2yo_api_key
 
 app = Flask(__name__)
+
+N2YO_API_KEY = get_n2yo_api_key()
 
 
 def gerar_detritos_simulados(n=60):
