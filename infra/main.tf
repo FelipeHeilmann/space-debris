@@ -82,13 +82,14 @@ resource "azurerm_key_vault" "kv" {
     secret_permissions = ["Get", "List", "Set", "Delete", "Purge"]
   }
 
-  # Acesso para o App Service via Managed Identity
-  access_policy {
-    tenant_id = data.azurerm_client_config.current.tenant_id
-    object_id = azurerm_linux_web_app.app.identity[0].principal_id
+}
 
-    secret_permissions = ["Get", "List"]
-  }
+resource "azurerm_key_vault_access_policy" "app_identity" {
+  key_vault_id = azurerm_key_vault.kv.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = azurerm_linux_web_app.app.identity[0].principal_id
+
+  secret_permissions = ["Get", "List"]
 }
 
 # ─── Key Vault Secret (API N2YO) ──────────────────────────────────────────────
