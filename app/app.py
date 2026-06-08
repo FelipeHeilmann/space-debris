@@ -30,7 +30,8 @@ def _velocidade(alt_km: float) -> float:
 
 def _buscar_n2yo() -> list:
     key = get_n2yo_api_key()
-    url = f"https://api.n2yo.com/rest/v1/satellite/above/0/0/0/90/8&apiKey={key}"
+    # categoria 0 = todos os objetos; ? inicia query string corretamente
+    url = f"https://api.n2yo.com/rest/v1/satellite/above/0/0/0/90/0?apiKey={key}"
     req = urllib.request.Request(url, headers={"User-Agent": "SpaceDebrisTracker/1.0"})
     with urllib.request.urlopen(req, timeout=10) as resp:
         data = json.loads(resp.read())
@@ -58,7 +59,10 @@ def index():
 
 @app.route("/api/debris")
 def api_debris():
-    return jsonify(_buscar_n2yo())
+    try:
+        return jsonify(_buscar_n2yo())
+    except Exception as e:
+        return jsonify({"erro": str(e), "tipo": type(e).__name__}), 500
 
 
 @app.route("/api/status")
