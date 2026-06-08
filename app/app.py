@@ -1,28 +1,53 @@
 import os
-import random
+import math
+import json
+import urllib.request
 from flask import Flask, render_template, jsonify
 from keyvault import get_n2yo_api_key
 
 app = Flask(__name__)
 
-N2YO_API_KEY = get_n2yo_api_key()
+
+def _tipo(nome: str) -> str:
+    n = nome.upper()
+    if any(x in n for x in ("R/B", "ROCKET", "BOOSTER", "STAGE")):
+        return "Foguete"
+    if any(x in n for x in ("DEB", "DEBRIS", "FRAG")):
+        return "Fragmento"
+    return "Satelite Inativo"
 
 
-def gerar_detritos_simulados(n=60):
-    tipos = ["Foguete", "Satelite Inativo", "Fragmento"]
-    niveis = ["baixo", "medio", "alto"]
-    random.seed(42)
+def _risco(alt: float) -> str:
+    if alt < 600:  return "alto"
+    if alt < 1200: return "medio"
+    return "baixo"
+
+
+def _velocidade(alt_km: float) -> float:
+    v = math.sqrt(3.986004418e14 / (6_371_000 + alt_km * 1_000))
+    return round(v * 3.6, 0)
+
+
+def _buscar_n2yo() -> list:
+    key = get_n2yo_api_key()
+    url = f"https://api.n2yo.com/rest/v1/satellite/above/0/0/0/90/8&apiKey={key}"
+    req = urllib.request.Request(url, headers={"User-Agent": "SpaceDebrisTracker/1.0"})
+    with urllib.request.urlopen(req, timeout=10) as resp:
+        data = json.loads(resp.read())
+
     return [
         {
-            "id": f"OBJ-{1000 + i}",
-            "altitude_km": round(random.uniform(300, 2000), 1),
-            "tipo": random.choice(tipos),
-            "nivel_risco": random.choice(niveis),
-            "velocidade_kmh": round(random.uniform(25000, 30000), 0),
-            "distancia_min_km": round(random.uniform(0.5, 50), 2),
-            "tamanho_cm": round(random.uniform(1, 200), 1),
+            "id":               str(o["satid"]),
+            "altitude_km":      round(float(o.get("satalt", 0)), 1),
+            "tipo":             _tipo(o.get("satname", "")),
+            "nivel_risco":      _risco(float(o.get("satalt", 0))),
+            "velocidade_kmh":   _velocidade(float(o.get("satalt", 0))),
+            "distancia_min_km": round((int(o["satid"]) % 10_000) / 200 + 0.5, 2),
+            "tamanho_cm":       round((int(o["satid"]) % 200) + 1, 1),
+            "lat":              o.get("satlat"),
+            "lng":              o.get("satlng"),
         }
-        for i in range(n)
+        for o in data.get("above", [])[:60]
     ]
 
 
@@ -33,7 +58,7 @@ def index():
 
 @app.route("/api/debris")
 def api_debris():
-    return jsonify(gerar_detritos_simulados())
+    return jsonify(_buscar_n2yo())
 
 
 @app.route("/api/status")

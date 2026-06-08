@@ -40,6 +40,7 @@ resource "azurerm_linux_web_app" "app" {
     "SCM_DO_BUILD_DURING_DEPLOYMENT"        = "true"
     "APPINSIGHTS_INSTRUMENTATIONKEY"        = azurerm_application_insights.ai.instrumentation_key
     "APPLICATIONINSIGHTS_CONNECTION_STRING" = azurerm_application_insights.ai.connection_string
+    "KEY_VAULT_URL"                         = azurerm_key_vault.kv.vault_uri
   }
 
   identity {
