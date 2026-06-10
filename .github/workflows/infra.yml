@@ -24,6 +24,15 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: Validar secrets do GitHub
+        run: |
+          if [ -z "${{ secrets.N2YO_API_KEY }}" ]; then
+            echo "ERRO: N2YO_API_KEY nao configurado no GitHub Secrets"
+            exit 1
+          fi
+
+          echo "N2YO_API_KEY encontrado"
+
       - name: Exportar credenciais ARM para o Terraform
         run: |
           echo "ARM_CLIENT_ID=$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r .clientId)" >> $GITHUB_ENV
@@ -37,33 +46,50 @@ jobs:
             --name rg-tfstate \
             --location eastus2 \
             --output none
+
           az storage account create \
             --name stspacedebristf26 \
             --resource-group rg-tfstate \
             --location eastus2 \
             --sku Standard_LRS \
-            --output none
+            --output none || true
+
           az storage container create \
             --name tfstate \
             --account-name stspacedebristf26 \
-            --output none
+            --output none || true
 
       - name: Terraform Init
         working-directory: infra
         run: terraform init
 
+      - name: Terraform Validate
+        working-directory: infra
+        run: terraform validate
+
       - name: Terraform Plan
         working-directory: infra
-        run: terraform plan -var="n2yo_api_key=${{ secrets.N2YO_API_KEY }}"
+        run: |
+          terraform plan \
+            -var="n2yo_api_key=${{ secrets.N2YO_API_KEY }}" \
+            -out=tfplan
 
       - name: Terraform Apply
         working-directory: infra
-        run: terraform apply -auto-approve -var="n2yo_api_key=${{ secrets.N2YO_API_KEY }}"
+        run: terraform apply -auto-approve tfplan
+
+      - name: Mostrar recursos do state
+        working-directory: infra
+        run: terraform state list
+
+      - name: Verificar secret no state
+        working-directory: infra
+        run: terraform state show azurerm_key_vault_secret.n2yo_key
 
       - name: Exibir outputs
         working-directory: infra
         run: terraform output
 
       - name: Logout Azure
-        run: az logout
         if: always()
+        run: az logout
