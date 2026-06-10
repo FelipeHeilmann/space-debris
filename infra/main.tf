@@ -89,7 +89,14 @@ resource "azurerm_key_vault_access_policy" "app_identity" {
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = azurerm_linux_web_app.app.identity[0].principal_id
 
-  secret_permissions = ["Get", "List"]
+  secret_permissions = [
+    "Get",
+    "List"
+  ]
+
+  depends_on = [
+    azurerm_linux_web_app.app
+  ]
 }
 
 # ─── Key Vault Secret (API N2YO) ──────────────────────────────────────────────
