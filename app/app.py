@@ -7,7 +7,6 @@ from keyvault import get_n2yo_api_key
 
 app = Flask(__name__)
 
-
 def _tipo(nome: str) -> str:
     n = nome.upper()
     if any(x in n for x in ("R/B", "ROCKET", "BOOSTER", "STAGE")):
@@ -30,7 +29,6 @@ def _velocidade(alt_km: float) -> float:
 
 def _buscar_n2yo() -> list:
     key = get_n2yo_api_key()
-    # categoria 0 = todos os objetos; ? inicia query string corretamente
     url = f"https://api.n2yo.com/rest/v1/satellite/above/0/0/0/90/0?apiKey={key}"
     req = urllib.request.Request(url, headers={"User-Agent": "SpaceDebrisTracker/1.0"})
     with urllib.request.urlopen(req, timeout=10) as resp:
