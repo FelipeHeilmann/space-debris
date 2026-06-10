@@ -65,6 +65,25 @@ def api_debris():
         return jsonify({"erro": str(e), "tipo": type(e).__name__}), 500
 
 
+@app.route("/api/debug")
+def api_debug():
+    try:
+        key = get_n2yo_api_key()
+        url = f"https://api.n2yo.com/rest/v1/satellite/above/0/0/0/90/0?apiKey={key}"
+        req = urllib.request.Request(url, headers={"User-Agent": "SpaceDebrisTracker/1.0"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            raw = resp.read()
+        data = json.loads(raw)
+        return jsonify({
+            "key_length": len(key),
+            "n2yo_info": data.get("info"),
+            "above_count": len(data.get("above", [])),
+            "first_object": data.get("above", [None])[0],
+        })
+    except Exception as e:
+        return jsonify({"erro": str(e), "tipo": type(e).__name__}), 500
+
+
 @app.route("/api/status")
 def api_status():
     return jsonify({
